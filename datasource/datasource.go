@@ -6,7 +6,7 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-func connectDB() *sql.DB {
+func ConnectDB() *sql.DB {
 
 	dsn := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d", "localhost", "SA", "J55fonteles", "1433")
 	db, err := sql.Open("mssql", dsn)
