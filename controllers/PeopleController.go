@@ -22,7 +22,8 @@ type peopleController struct {
 
 func (p *peopleController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET", "/", "Index")
-	b.Handle("GET", "/find", "Find")
+	b.Handle("GET", "/find/{value}", "Find")
+	b.Handle("GET","/findby/{parameter}/{value}","FindBy")
 }
 
 func (p *peopleController) Index(ctx iris.Context) {
@@ -34,12 +35,33 @@ func (p *peopleController) Index(ctx iris.Context) {
 }
 
 func (p *peopleController)  Find(ctx iris.Context) {
-	keys := []interface{}{"BusinessEntityID", 269}
+	value, err := ctx.Params().GetInt("value")
+	if err != nil {
+		error := map[string]string{"error": "Invalid Value. Need to be a integer non-negative (uint)"}
+		ctx.JSON(error)
+		return
+	}
+	keys := []interface{}{"BusinessEntityID", value}
 	person, err := p.Person.Find(keys...)
 	if err != nil {
-		fmt.Println("Erro:", err)
+		error := map[string]string{"error": "Could not find a record with this BusinessEntityID"}
+		ctx.JSON(error)
+		return
 	}
 
 	ctx.JSON(person)
 }
 
+func (p *peopleController) FindBy(ctx iris.Context) {
+	param := ctx.Params().Get("parameter")
+	value := ctx.Params().Get("value")
+	fmt.Println("param:",param, " value:", value)
+	data := []interface{}{param, value}
+	person, err := p.Person.Find(data...)
+	if err != err {
+		error := map[string]string{"error": "Could not find a record with this BusinessEntityID"}
+		ctx.JSON(error)
+		return
+	}
+	ctx.JSON(person)
+}
