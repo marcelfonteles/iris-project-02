@@ -48,3 +48,7 @@ func (p *Person) Save() error{
 func (p *Person) Delete() error {
 	return p.prepare(nil).Delete()
 }
+
+func (p *Person) Update(values ...interface{}) error {
+	return p.prepare(nil).Update(values...)
+}

@@ -28,6 +28,8 @@ func (p *peopleController) BeforeActivation(b mvc.BeforeActivation) {
 	b.Handle("GET","/findall/{field}/{value}","FindAll")
 	b.Handle("POST","/create","CreatePerson")
 	b.Handle("DELETE","/{businessEntityID}/delete","DeletePerson")
+	b.Handle("DELETE", "/{businessEntityID}/deleteall","DeleteAll")
+	b.Handle("PATCH","/{businessEntityID}/update","Update")
 }
 
 func (p *peopleController) Index(ctx iris.Context) {
@@ -113,4 +115,35 @@ func (p *peopleController) DeletePerson(ctx iris.Context) {
 	if err = person.Delete(); err != nil {
 		fmt.Println("erro 2:", err)
 	}
+}
+
+func (p *peopleController) DeleteAll(ctx iris.Context) {
+	businessEntityID := ctx.Params().Get("businessEntityID")
+	data := []interface{}{"businessEntityID", businessEntityID}
+	people, err := p.Person.FindAll(data...)
+	if err != nil {
+		fmt.Println("Erro:", err)
+	}
+	for _, value := range people{
+		value.Delete()
+	}
+
+}
+
+func (p *peopleController) Update(ctx iris.Context) {
+	id := ctx.Params().Get("businessEntityID")
+	dataFind := []interface{}{"businessEntityID", id}
+	person, err := p.Person.Find(dataFind...)
+	body := ctx.Request().Body
+	binData, err := ioutil.ReadAll(body)
+	if err != nil {
+		fmt.Println("Erro:", err)
+	}
+	rawData := string(binData)
+
+	if err = person.Update(rawData); err != nil {
+		fmt.Println("Erro2:", err)
+	}
+	message := map[string]string{"success":"Record updated"}
+	ctx.JSON(message)
 }
